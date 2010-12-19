@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+
+	<TextView android:id="@+id/details" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:gravity="center_horizontal" />
+
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="horizontal" android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+		<Button android:text="@string/start" android:id="@+id/startBtn" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:layout_weight="1"
+			android:padding="3dip" />
+		<Button android:text="@string/previous" android:id="@+id/prevBtn" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:layout_weight="1"
+			android:padding="3dip" />
+		<Button android:text="@string/next" android:id="@+id/nextBtn" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:layout_weight="1"
+			android:padding="3dip" />
+		<Button android:text="@string/end" android:id="@+id/endBtn" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:layout_weight="1"
+			android:padding="3dip" />
+	</LinearLayout>
+
+	<com.piwi.stickeroid.StickersView android:id="@+id/stickers" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:layout_weight="1" android:padding="3dip" />
+
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="horizontal" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:padding="3dip" >
+		<Button android:text="-" android:id="@+id/minusBtn" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:layout_weight="1"
+			android:padding="3dip" />
+		<Button android:text="+" android:id="@+id/plusBtn" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:layout_weight="1"
+			android:padding="3dip" />
+	</LinearLayout>
+
+</LinearLayout>
