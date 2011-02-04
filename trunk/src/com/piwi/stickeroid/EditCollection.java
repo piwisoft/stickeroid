@@ -32,14 +32,6 @@ public class EditCollection extends Activity implements OnClickListener, Propert
 
     private StickersView mStickersView;
 
-    private Button mStartButton;
-
-    private Button mPrevButton;
-
-    private Button mNextButton;
-
-    private Button mEndButton;
-
     private Button mMinusButton;
 
     private Button mPlusButton;
@@ -145,23 +137,7 @@ public class EditCollection extends Activity implements OnClickListener, Propert
     @Override
     public void onClick(View v)
     {
-        if(v == mStartButton)
-        {
-            mStickersView.goStart();
-        }
-        else if(v == mPrevButton)
-        {
-            mStickersView.goPrev();
-        }
-        else if(v == mNextButton)
-        {
-            mStickersView.goNext();
-        }
-        else if(v == mEndButton)
-        {
-            mStickersView.goEnd();
-        }
-        else if(v == mMinusButton)
+        if(v == mMinusButton)
         {
             mStickersView.decrement();
         }
@@ -174,10 +150,6 @@ public class EditCollection extends Activity implements OnClickListener, Propert
     @Override
     public void propertyChange(PropertyChangeEvent event)
     {
-        mStartButton.setEnabled(mStickersView.canGoBackward());
-        mPrevButton.setEnabled(mStickersView.canGoBackward());
-        mNextButton.setEnabled(mStickersView.canGoForward());
-        mEndButton.setEnabled(mStickersView.canGoForward());
         mMinusButton.setEnabled(mStickersView.canDecrement());
         mPlusButton.setEnabled(mStickersView.canIncrement());
 
@@ -241,17 +213,9 @@ public class EditCollection extends Activity implements OnClickListener, Propert
 
         mStickersView = (StickersView) findViewById(R.id.stickers);
 
-        mStartButton = (Button) findViewById(R.id.startBtn);
-        mPrevButton = (Button) findViewById(R.id.prevBtn);
-        mNextButton = (Button) findViewById(R.id.nextBtn);
-        mEndButton = (Button) findViewById(R.id.endBtn);
         mMinusButton = (Button) findViewById(R.id.minusBtn);
         mPlusButton = (Button) findViewById(R.id.plusBtn);
 
-        mStartButton.setOnClickListener(this);
-        mPrevButton.setOnClickListener(this);
-        mNextButton.setOnClickListener(this);
-        mEndButton.setOnClickListener(this);
         mMinusButton.setOnClickListener(this);
         mPlusButton.setOnClickListener(this);
 

@@ -15,6 +15,8 @@ import android.view.View;
 
 public class StickersView extends View
 {
+    private static final float MOVE_THRESHOLD = 15;
+
     private static final int MISSING_COLOR = Color.RED;
 
     private static final int NORMAL_COLOR = Color.rgb(148, 239, 148);
@@ -61,6 +63,14 @@ public class StickersView extends View
 
     private PropertyChangeEvent mDummyEvent;
 
+    private float mStartX;
+
+    private float mStartY;
+
+    private int mStartOffsetY;
+
+    private int mMinOffsetY;
+
     public StickersView(Context context)
     {
         super(context);
@@ -98,49 +108,56 @@ public class StickersView extends View
 
         for(int r = 0; r < mNbRows; r++)
         {
+            int y = mOffsetY + r * h;
+
             for(int c = 0; c < mNbColumns; c++)
             {
-                int idx = mIndexes[pos];
-                byte val = mBytes[idx];
+                int x = mOffsetX + c * w;
 
-                mEltRect.offsetTo(mOffsetX + c * w, mOffsetY + r * h);
+                if(x + w >= 0 && y + h >= 0)
+                {
+                    int idx = mIndexes[pos];
+                    byte val = mBytes[idx];
 
-                mPaint.setStyle(Paint.Style.FILL);
-                if(val == 0)
-                {
-                    mPaint.setColor(MISSING_COLOR);
-                }
-                else if(val == 1)
-                {
-                    mPaint.setColor(NORMAL_COLOR);
-                }
-                else
-                {
-                    mPaint.setColor(DUPLICATED_COLOR);
-                }
-                canvas.drawRect(mEltRect, mPaint);
+                    mEltRect.offsetTo(x, y);
 
-                if(pos == mFocusedItem)
-                {
-                    mPaint.setColor(SELECTED_COLOR);
+                    mPaint.setStyle(Paint.Style.FILL);
+                    if(val == 0)
+                    {
+                        mPaint.setColor(MISSING_COLOR);
+                    }
+                    else if(val == 1)
+                    {
+                        mPaint.setColor(NORMAL_COLOR);
+                    }
+                    else
+                    {
+                        mPaint.setColor(DUPLICATED_COLOR);
+                    }
                     canvas.drawRect(mEltRect, mPaint);
+
+                    if(pos == mFocusedItem)
+                    {
+                        mPaint.setColor(SELECTED_COLOR);
+                        canvas.drawRect(mEltRect, mPaint);
+                    }
+
+                    mPaint.setStyle(Paint.Style.STROKE);
+                    mPaint.setColor(Color.BLACK);
+                    canvas.drawRect(mEltRect, mPaint);
+
+                    String text = Integer.toString(idx + 1);
+                    if(val > 1)
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(text);
+                        sb.append('+');
+                        sb.append(val - 1);
+                        text = sb.toString();
+                    }
+
+                    canvas.drawText(text, mEltRect.centerX(), mEltRect.centerY() - to, mPaint);
                 }
-
-                mPaint.setStyle(Paint.Style.STROKE);
-                mPaint.setColor(Color.BLACK);
-                canvas.drawRect(mEltRect, mPaint);
-
-                String text = Integer.toString(idx + 1);
-                if(val > 1)
-                {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(text);
-                    sb.append('+');
-                    sb.append(val - 1);
-                    text = sb.toString();
-
-                }
-                canvas.drawText(text, mEltRect.centerX(), mEltRect.centerY() - to, mPaint);
 
                 pos++;
                 if(pos == mNbDisplayed)
@@ -158,29 +175,58 @@ public class StickersView extends View
     @Override
     public boolean onTouchEvent(MotionEvent event)
     {
-        mFocusedItem = -1;
+        float x = event.getX();
+        float y = event.getY();
 
-        int column = (int) ((event.getX() - mOffsetX) / mItemW);
-        int row = (int) ((event.getY() - mOffsetY) / mItemH);
-        if(column >= 0 && column < mNbColumns && row >= 0 && row < mNbRows)
+        switch(event.getAction())
         {
-            mFocusedItem = mPosition + column + row * mNbColumns;
-        }
+        case MotionEvent.ACTION_DOWN:
+            // Memorize start point
+            mStartX = x;
+            mStartY = y;
+            mStartOffsetY = mOffsetY;
+            break;
 
-        if(mFocusedItem >= mNbDisplayed)
-        {
-            mFocusedItem = -1;
-        }
+        case MotionEvent.ACTION_MOVE:
+            if(Math.abs(y - mStartY) > MOVE_THRESHOLD)
+            {
+                mOffsetY = (int) (mStartOffsetY + (y - mStartY));
+                if(mOffsetY > 0)
+                {
+                    mOffsetY = 0;
+                }
+                if(mOffsetY < mMinOffsetY)
+                {
+                    mOffsetY = mMinOffsetY;
+                }
+                invalidate();
+            }
+            break;
 
-        mPropertyChangeSupport.firePropertyChange(mDummyEvent);
-        invalidate();
+        case MotionEvent.ACTION_UP:
+            // Check if we have move or not
+            if(Math.abs(y - mStartY) < MOVE_THRESHOLD)
+            {
+                mFocusedItem = -1;
+
+                int column = (int) ((event.getX() - mOffsetX) / mItemW);
+                int row = (int) ((event.getY() - mOffsetY) / mItemH);
+                if(column >= 0 && column < mNbColumns && row >= 0 && row < mNbRows)
+                {
+                    mFocusedItem = mPosition + column + row * mNbColumns;
+                }
+
+                if(mFocusedItem >= mNbDisplayed)
+                {
+                    mFocusedItem = -1;
+                }
+
+                mPropertyChangeSupport.firePropertyChange(mDummyEvent);
+                invalidate();
+            }
+            break;
+        }
         return true;
-    }
-
-    @Override
-    public boolean onTrackballEvent(MotionEvent event)
-    {
-        return super.onTrackballEvent(event);
     }
 
     public void init(byte[] d, int position, int filter)
@@ -197,16 +243,6 @@ public class StickersView extends View
         invalidate();
     }
 
-    public boolean canGoBackward()
-    {
-        return mPosition > 0;
-    }
-
-    public boolean canGoForward()
-    {
-        return mPosition + mNbDisplayable < mNbDisplayed;
-    }
-
     public boolean canIncrement()
     {
         return mFocusedItem >= 0 && mBytes[mIndexes[mFocusedItem]] < 99;
@@ -215,46 +251,6 @@ public class StickersView extends View
     public boolean canDecrement()
     {
         return mFocusedItem >= 0 && mBytes[mIndexes[mFocusedItem]] > 0;
-    }
-
-    public void goStart()
-    {
-        if(canGoBackward())
-        {
-            mPosition = 0;
-            mPropertyChangeSupport.firePropertyChange(mDummyEvent);
-            invalidate();
-        }
-    }
-
-    public void goPrev()
-    {
-        if(canGoBackward())
-        {
-            mPosition -= mNbDisplayable;
-            mPropertyChangeSupport.firePropertyChange(mDummyEvent);
-            invalidate();
-        }
-    }
-
-    public void goNext()
-    {
-        if(canGoForward())
-        {
-            mPosition += mNbDisplayable;
-            mPropertyChangeSupport.firePropertyChange(mDummyEvent);
-            invalidate();
-        }
-    }
-
-    public void goEnd()
-    {
-        if(canGoForward())
-        {
-            mPosition = (mNbDisplayed / mNbDisplayable) * mNbDisplayable;
-            mPropertyChangeSupport.firePropertyChange(mDummyEvent);
-            invalidate();
-        }
     }
 
     public void increment()
@@ -347,6 +343,8 @@ public class StickersView extends View
 
         mPosition = (mIndexes[mPosition] / mNbDisplayable) * mNbDisplayable;
 
+        computeGrid();
+
         mPropertyChangeSupport.firePropertyChange(mDummyEvent);
     }
 
@@ -393,6 +391,8 @@ public class StickersView extends View
 
     private void updateIndexes()
     {
+        int oldNb = mNbDisplayed;
+
         mNbDuplicated = 0;
         mNbMissing = 0;
         mNbTotalDuplicated = 0;
@@ -464,6 +464,38 @@ public class StickersView extends View
             mNbDisplayed = mBytes.length;
         }
 
+        if(oldNb != mNbDisplayed)
+        {
+            computeGrid();
+        }
+
         mPropertyChangeSupport.firePropertyChange(mDummyEvent);
+    }
+
+    private void computeGrid()
+    {
+        if(mItemW > 0 && mItemH > 0)
+        {
+            int w = getWidth();
+            int h = getHeight();
+
+            mNbColumns = w / mItemW;
+            mNbRows = (int) Math.ceil((double) mNbDisplayed / (double) mNbColumns);
+
+            mItemW = w / mNbColumns;
+
+            mOffsetX = (w - mNbColumns * mItemW) / 2;
+            mOffsetY = 0;
+
+            int nbRowsDisplayed = h / mItemH;
+            if(nbRowsDisplayed < mNbRows)
+            {
+                mMinOffsetY = -(mNbRows - nbRowsDisplayed) * mItemH;
+            }
+            else
+            {
+                mMinOffsetY = 0;
+            }
+        }
     }
 }

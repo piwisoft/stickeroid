@@ -28,6 +28,8 @@ import android.widget.ListView;
 
 public class Main extends ListActivity
 {
+    public final static String LOG_TAG = "stickeroid";
+    
     private final static int EDIT_ID = Menu.FIRST;
 
     private final static int DELETE_ID = Menu.FIRST + 1;
