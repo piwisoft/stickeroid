@@ -28,15 +28,13 @@ public class StickersView extends View implements GestureDetector.OnGestureListe
 
     private int[] mIndexes;
 
-    private int mPosition;
-
     private int mNbMissing;
 
     private int mNbDuplicated;
 
     private int mNbTotalDuplicated;
 
-    private Paint mPaint = new Paint();
+    private Paint mPaint;
 
     private int mItemW;
 
@@ -50,8 +48,6 @@ public class StickersView extends View implements GestureDetector.OnGestureListe
 
     private int mNbColumns;
 
-    private int mNbDisplayable;
-
     private int mFilterType;
 
     private int mNbDisplayed;
@@ -62,9 +58,9 @@ public class StickersView extends View implements GestureDetector.OnGestureListe
 
     private PropertyChangeEvent mDummyEvent;
 
-    private int mMinOffsetY;
-
     private GestureDetector mGestureDetector;
+    
+    private int mMinItemHeight;
 
     public StickersView(Context context)
     {
@@ -99,7 +95,9 @@ public class StickersView extends View implements GestureDetector.OnGestureListe
         int w = mEltRect.width();
         int h = mEltRect.height();
 
-        int pos = mPosition;
+        int pos = 0;
+        int ymin = getScrollY();
+        int ymax = ymin + getHeight();
 
         for(int r = 0; r < mNbRows; r++)
         {
@@ -109,7 +107,7 @@ public class StickersView extends View implements GestureDetector.OnGestureListe
             {
                 int x = mOffsetX + c * w;
 
-                if(x + w >= 0 && y + h >= 0)
+                if(y + h >= ymin && y <= ymax)
                 {
                     int idx = mIndexes[pos];
                     byte val = mBytes[idx];
@@ -177,14 +175,13 @@ public class StickersView extends View implements GestureDetector.OnGestureListe
         return true;
     }
 
-    public void init(byte[] d, int position, int filter)
+    public void init(byte[] d, int pos, int filter)
     {
-        mGestureDetector = new GestureDetector(this);
-
         mBytes = d;
         mIndexes = new int[mBytes.length];
 
-        mPosition = position;
+        scrollTo(0, pos);
+        
         mFocusedItem = -1;
         mFilterType = filter;
 
@@ -225,7 +222,7 @@ public class StickersView extends View implements GestureDetector.OnGestureListe
 
     public int getPosition()
     {
-        return mPosition;
+        return getScrollY();
     }
 
     public int getFilterType()
@@ -269,63 +266,11 @@ public class StickersView extends View implements GestureDetector.OnGestureListe
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh)
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
     {
-        super.onSizeChanged(w, h, oldw, oldh);
-
-        float tw = mPaint.measureText("000+00");
-
-        float density = getContext().getResources().getDisplayMetrics().density;
-        int minSize = (int) (45.0f * density + 0.5f);
-
-        mItemH = Math.max(minSize, (int) (2.0f * (tw + 4.0f) / 3.0f + 0.5f));
-        mItemW = (int) (3.0f * mItemH / 2.0f + 0.5f);
-        mNbColumns = w / mItemW;
-        mNbRows = h / mItemH;
-
-        mNbDisplayable = mNbRows * mNbColumns;
-
-        mItemW = w / mNbColumns;
-        mItemH = h / mNbRows;
-
-        mOffsetX = (w - mNbColumns * mItemW) / 2;
-        mOffsetY = (h - mNbRows * mItemH) / 2;
-
-        mPosition = (mIndexes[mPosition] / mNbDisplayable) * mNbDisplayable;
-
-        computeGrid();
-
-        mPropertyChangeSupport.firePropertyChange(mDummyEvent);
-    }
-
-    @Override
-    protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect)
-    {
-        super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
-
-        if(gainFocus)
-        {
-            if(direction == FOCUS_DOWN || direction == FOCUS_RIGHT)
-            {
-                mFocusedItem = mPosition;
-            }
-            else if(direction == FOCUS_UP)
-            {
-                mFocusedItem = Math.min(mPosition + mNbDisplayable - 1, mNbDisplayed - 1);
-            }
-            else
-            {
-                mFocusedItem = Math.min(mPosition + mNbColumns - 1, mNbDisplayed - 1);
-            }
-        }
-        else
-        {
-            mFocusedItem = -1;
-        }
-
-        mPropertyChangeSupport.firePropertyChange(mDummyEvent);
-
-        invalidate();
+        int w = measureWidth(widthMeasureSpec);
+        int h = measureHeight(heightMeasureSpec);
+        setMeasuredDimension(w, h);
     }
 
     @Override
@@ -337,11 +282,7 @@ public class StickersView extends View implements GestureDetector.OnGestureListe
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
     {
-        if(Math.abs(velocityY) > 2000.0f)
-        {
-            //startAnimation(animation);
-        }
-        return true;
+        return false;
     }
 
     @Override
@@ -352,18 +293,7 @@ public class StickersView extends View implements GestureDetector.OnGestureListe
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
     {
-        mOffsetY = mOffsetY - (int) distanceY;
-        if(mOffsetY > 0)
-        {
-            mOffsetY = 0;
-        }
-        if(mOffsetY < mMinOffsetY)
-        {
-            mOffsetY = mMinOffsetY;
-        }
-        invalidate();
-
-        return true;
+        return false;
     }
 
     @Override
@@ -377,10 +307,10 @@ public class StickersView extends View implements GestureDetector.OnGestureListe
         mFocusedItem = -1;
 
         int column = (int) ((e.getX() - mOffsetX) / mItemW);
-        int row = (int) ((e.getY() - mOffsetY) / mItemH);
+        int row = (int) ((getScrollY() + e.getY() - mOffsetY) / mItemH);
         if(column >= 0 && column < mNbColumns && row >= 0 && row < mNbRows)
         {
-            mFocusedItem = mPosition + column + row * mNbColumns;
+            mFocusedItem =  column + row * mNbColumns;
         }
 
         if(mFocusedItem >= mNbDisplayed)
@@ -390,19 +320,101 @@ public class StickersView extends View implements GestureDetector.OnGestureListe
 
         mPropertyChangeSupport.firePropertyChange(mDummyEvent);
         invalidate();
-        
+
         return true;
     }
 
     private void init()
     {
+        mGestureDetector = new GestureDetector(this);
+
         setFocusable(true);
 
         mPropertyChangeSupport = new PropertyChangeSupport(this);
         mDummyEvent = new PropertyChangeEvent(this, "", null, null);
 
+        mPaint = new Paint();
         float density = getContext().getResources().getDisplayMetrics().density;
         mPaint.setTextSize(15.0f * density);
+        
+        float tw = mPaint.measureText("000+00") + 4.0f;
+        int minSize = (int) (45.0f * density + 0.5f);
+
+        mMinItemHeight = Math.max(minSize, (int) (2.0f * tw / 3.0f + 0.5f));
+    }
+
+    /**
+     * Determines the width of this view
+     * 
+     * @param measureSpec A measureSpec packed into an int
+     * @return The width of the view, honoring constraints from measureSpec
+     */
+    private int measureWidth(int measureSpec)
+    {
+        int result = 0;
+        int specMode = MeasureSpec.getMode(measureSpec);
+        int specSize = MeasureSpec.getSize(measureSpec);
+
+        mItemW = (int) (3.0f * mMinItemHeight / 2.0f + 0.5f);
+        
+        if(specMode == MeasureSpec.EXACTLY)
+        {
+            // We were told how big to be
+            result = specSize;
+        }
+        else
+        {
+            result = 4 * mItemW;
+            
+            if(specMode == MeasureSpec.AT_MOST)
+            {
+                // Respect AT_MOST value if that was what is called for by measureSpec
+                result = Math.min(result, specSize);
+            }
+        }
+
+        mNbColumns = result / mItemW;
+        mItemW = result / mNbColumns;
+        mOffsetX = (result - mNbColumns * mItemW) / 2;
+        
+        return result;
+    }
+
+    /**
+     * Determines the height of this view
+     * 
+     * @param measureSpec A measureSpec packed into an int
+     * @return The height of the view, honoring constraints from measureSpec
+     */
+    private int measureHeight(int measureSpec)
+    {
+        int result = 0;
+        int specMode = MeasureSpec.getMode(measureSpec);
+        int specSize = MeasureSpec.getSize(measureSpec);
+
+        mItemH = mMinItemHeight;
+        
+        if(specMode == MeasureSpec.EXACTLY)
+        {
+            // We were told how big to be
+            result = specSize;
+        }
+        else
+        {
+            result = (mNbDisplayed / 4) * mItemH;
+            
+            if(specMode == MeasureSpec.AT_MOST)
+            {
+                // Respect AT_MOST value if that was what is called for by measureSpec
+                result = Math.min(result, specSize);
+            }
+        }
+        
+        mNbRows = result / mItemH;
+        mItemH = result / mNbRows;
+        mOffsetY = (result - mNbRows * mItemH) / 2;
+        
+        return result;
     }
 
     private void updateIndexes()
@@ -482,36 +494,9 @@ public class StickersView extends View implements GestureDetector.OnGestureListe
 
         if(oldNb != mNbDisplayed)
         {
-            computeGrid();
+            requestLayout();
         }
 
         mPropertyChangeSupport.firePropertyChange(mDummyEvent);
-    }
-
-    private void computeGrid()
-    {
-        if(mItemW > 0 && mItemH > 0)
-        {
-            int w = getWidth();
-            int h = getHeight();
-
-            mNbColumns = w / mItemW;
-            mNbRows = (int) Math.ceil((double) mNbDisplayed / (double) mNbColumns);
-
-            mItemW = w / mNbColumns;
-
-            mOffsetX = (w - mNbColumns * mItemW) / 2;
-            mOffsetY = 0;
-
-            int nbRowsDisplayed = h / mItemH;
-            if(nbRowsDisplayed < mNbRows)
-            {
-                mMinOffsetY = -(mNbRows - nbRowsDisplayed) * mItemH;
-            }
-            else
-            {
-                mMinOffsetY = 0;
-            }
-        }
     }
 }
