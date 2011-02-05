@@ -10,13 +10,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class StickersView extends View
+public class StickersView extends View implements GestureDetector.OnGestureListener
 {
-    private static final float MOVE_THRESHOLD = 15;
-
     private static final int MISSING_COLOR = Color.RED;
 
     private static final int NORMAL_COLOR = Color.rgb(148, 239, 148);
@@ -63,13 +62,9 @@ public class StickersView extends View
 
     private PropertyChangeEvent mDummyEvent;
 
-    private float mStartX;
-
-    private float mStartY;
-
-    private int mStartOffsetY;
-
     private int mMinOffsetY;
+
+    private GestureDetector mGestureDetector;
 
     public StickersView(Context context)
     {
@@ -134,6 +129,7 @@ public class StickersView extends View
                     {
                         mPaint.setColor(DUPLICATED_COLOR);
                     }
+
                     canvas.drawRect(mEltRect, mPaint);
 
                     if(pos == mFocusedItem)
@@ -160,11 +156,13 @@ public class StickersView extends View
                 }
 
                 pos++;
+
                 if(pos == mNbDisplayed)
                 {
                     break;
                 }
             }
+
             if(pos == mNbDisplayed)
             {
                 break;
@@ -175,62 +173,14 @@ public class StickersView extends View
     @Override
     public boolean onTouchEvent(MotionEvent event)
     {
-        float x = event.getX();
-        float y = event.getY();
-
-        switch(event.getAction())
-        {
-        case MotionEvent.ACTION_DOWN:
-            // Memorize start point
-            mStartX = x;
-            mStartY = y;
-            mStartOffsetY = mOffsetY;
-            break;
-
-        case MotionEvent.ACTION_MOVE:
-            if(Math.abs(y - mStartY) > MOVE_THRESHOLD)
-            {
-                mOffsetY = (int) (mStartOffsetY + (y - mStartY));
-                if(mOffsetY > 0)
-                {
-                    mOffsetY = 0;
-                }
-                if(mOffsetY < mMinOffsetY)
-                {
-                    mOffsetY = mMinOffsetY;
-                }
-                invalidate();
-            }
-            break;
-
-        case MotionEvent.ACTION_UP:
-            // Check if we have move or not
-            if(Math.abs(y - mStartY) < MOVE_THRESHOLD)
-            {
-                mFocusedItem = -1;
-
-                int column = (int) ((event.getX() - mOffsetX) / mItemW);
-                int row = (int) ((event.getY() - mOffsetY) / mItemH);
-                if(column >= 0 && column < mNbColumns && row >= 0 && row < mNbRows)
-                {
-                    mFocusedItem = mPosition + column + row * mNbColumns;
-                }
-
-                if(mFocusedItem >= mNbDisplayed)
-                {
-                    mFocusedItem = -1;
-                }
-
-                mPropertyChangeSupport.firePropertyChange(mDummyEvent);
-                invalidate();
-            }
-            break;
-        }
+        mGestureDetector.onTouchEvent(event);
         return true;
     }
 
     public void init(byte[] d, int position, int filter)
     {
+        mGestureDetector = new GestureDetector(this);
+
         mBytes = d;
         mIndexes = new int[mBytes.length];
 
@@ -376,6 +326,72 @@ public class StickersView extends View
         mPropertyChangeSupport.firePropertyChange(mDummyEvent);
 
         invalidate();
+    }
+
+    @Override
+    public boolean onDown(MotionEvent e)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
+    {
+        if(Math.abs(velocityY) > 2000.0f)
+        {
+            //startAnimation(animation);
+        }
+        return true;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e)
+    {
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
+    {
+        mOffsetY = mOffsetY - (int) distanceY;
+        if(mOffsetY > 0)
+        {
+            mOffsetY = 0;
+        }
+        if(mOffsetY < mMinOffsetY)
+        {
+            mOffsetY = mMinOffsetY;
+        }
+        invalidate();
+
+        return true;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent e)
+    {
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e)
+    {
+        mFocusedItem = -1;
+
+        int column = (int) ((e.getX() - mOffsetX) / mItemW);
+        int row = (int) ((e.getY() - mOffsetY) / mItemH);
+        if(column >= 0 && column < mNbColumns && row >= 0 && row < mNbRows)
+        {
+            mFocusedItem = mPosition + column + row * mNbColumns;
+        }
+
+        if(mFocusedItem >= mNbDisplayed)
+        {
+            mFocusedItem = -1;
+        }
+
+        mPropertyChangeSupport.firePropertyChange(mDummyEvent);
+        invalidate();
+        
+        return true;
     }
 
     private void init()
