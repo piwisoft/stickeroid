@@ -6,18 +6,23 @@
 	<TextView android:id="@+id/details" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:gravity="center_horizontal" />
 
-	<com.piwi.stickeroid.StickersView android:id="@+id/stickers" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:layout_weight="1" android:padding="3dip" />
+	<ScrollView android:id="@+id/ScrollView01"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:layout_weight="1">
+		<com.piwi.stickeroid.StickersView
+			android:id="@+id/stickers" android:layout_width="fill_parent"
+			android:layout_height="fill_parent" />
+	</ScrollView>
 
 	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 		android:orientation="horizontal" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:padding="3dip" >
-		<Button android:text="-" android:id="@+id/minusBtn" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:layout_weight="1"
-			android:padding="3dip" />
-		<Button android:text="+" android:id="@+id/plusBtn" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:layout_weight="1"
-			android:padding="3dip" />
+		android:layout_height="wrap_content" android:padding="3dip">
+		<Button android:text="-" android:id="@+id/minusBtn"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_weight="1" android:padding="3dip" />
+		<Button android:text="+" android:id="@+id/plusBtn"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_weight="1" android:padding="3dip" />
 	</LinearLayout>
 
 </LinearLayout>
