@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">Stickeroid</string>
-	<string name="about_text">PiwiSoft (c) 2010</string>
+	<string name="about_text">PiwiSoft (c) 2011</string>
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
 	<string name="ok">OK</string>
