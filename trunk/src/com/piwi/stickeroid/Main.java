@@ -94,7 +94,7 @@ public class Main extends ListActivity
         {
             final Dialog dialog = new Dialog(this);
             dialog.setContentView(R.layout.about_dialog);
-            dialog.setTitle("Stickeroid v1.0");
+            dialog.setTitle("Stickeroid v1.1");
             dialog.show();
             return true;
         }
