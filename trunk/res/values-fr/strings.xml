@@ -1,50 +1,47 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
-	<string name="app_name">Stickeroid</string>
-	<string name="yes">Oui</string>
-	<string name="no">Non</string>
-	<string name="ok">OK</string>
-	<string name="cancel">Annuler</string>
-	<string name="no_collections">Utilisez le menu \'Ajouter\' pour ajouter une
+    <string name="app_name">Stickeroid</string>
+    <string name="yes">Oui</string>
+    <string name="no">Non</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Annuler</string>
+    <string name="no_collections">Utilisez le menu \'Ajouter\' pour ajouter une
 		collection</string>
-	<string name="menu_new_collection">Ajouter</string>
-	<string name="menu_restore">Restaurer</string>
-	<string name="menu_preferences">Préférences</string>
-	<string name="menu_about">A propos</string>
-	<string name="menu_edit_collection">Modifier</string>
-	<string name="menu_delete_collection">Supprimer</string>
-	<string name="menu_filters">Filtres</string>
-	<string name="backup_completed">Sauvegarde terminée</string>
-	<string name="backup_error">Erreur pendant la sauvegarde</string>
-	<string name="backup_can_t_access">Périphérique de stockage inaccessible</string>
-	<string name="backup_can_t_create">Impossible de créer le répertoire de sauvegarde
+    <string name="menu_new_collection">Ajouter</string>
+    <string name="menu_restore">Restaurer</string>
+    <string name="menu_preferences">Préférences</string>
+    <string name="menu_about">A propos</string>
+    <string name="menu_edit_collection">Modifier</string>
+    <string name="menu_delete_collection">Supprimer</string>
+    <string name="menu_filters">Filtres</string>
+    <string name="backup_completed">Sauvegarde terminée</string>
+    <string name="backup_error">Erreur pendant la sauvegarde</string>
+    <string name="backup_can_t_access">Périphérique de stockage inaccessible</string>
+    <string name="backup_can_t_create">Impossible de créer le répertoire de sauvegarde
 	</string>
-	<string name="restore_completed">Restauration terminée</string>
-	<string name="restore_error">Erreur pendant la restauration</string>
-	<string name="delete_collection_dialog_title">Supprimer une collection</string>
-	<string name="delete_collection_dialog_msg">Voulez-vous vraiment supprimer cette collection ?
+    <string name="restore_completed">Restauration terminée</string>
+    <string name="restore_error">Erreur pendant la restauration</string>
+    <string name="delete_collection_dialog_title">Supprimer une collection</string>
+    <string name="delete_collection_dialog_msg">Voulez-vous vraiment supprimer cette collection ?
 	</string>
-	<string name="new_collection_title">Créer une collection</string>
-	<string name="new_collection_name">Nom : </string>
-	<string name="new_collection_size">Taille : </string>
-	<string name="new_collection_confirm">Créer</string>
-	<string name="modify_collection_title">Modifier la collection</string>
-	<string name="modify_collection_confirm">Modifier</string>
-	<string name="edit_collection_title">Collection %s</string>
-	<string name="edit_collection_alert_title">Erreur</string>
-	<string name="edit_collection_alert_msg">Problème avec cette collection.</string>
-	<string name="filter_choice">Choix d\'un filtre</string>
-	<string name="filter_none">Aucun</string>
-	<string name="filter_missing">Manquants seuls</string>
-	<string name="filter_duplicated">Doubles seuls</string>
-	<string name="start">Début</string>
-	<string name="previous">Préc.</string>
-	<string name="next">Suiv.</string>
-	<string name="end">Fin</string>
-	<string name="restore_dialog_title">Restaurer les collections</string>
-	<string name="preferences_title">Préférences</string>
-	<string name="advanced_preferences">Sauvegarde</string>
-	<string name="title_auto_backup_preference">Sauvegarde automatique</string>
-	<string name="summary_auto_backup_preference">Sauvegarde une collection dès qu\'une modification
+    <string name="new_collection_title">Créer une collection</string>
+    <string name="new_collection_name">Nom : </string>
+    <string name="new_collection_size">Taille : </string>
+    <string name="new_collection_confirm">Créer</string>
+    <string name="modify_collection_title">Modifier la collection</string>
+    <string name="modify_collection_confirm">Modifier</string>
+    <string name="edit_collection_title">Collection %s</string>
+    <string name="filter_choice">Choix d\'un filtre</string>
+    <string name="filter_none">Aucun</string>
+    <string name="filter_missing">Manquants seuls</string>
+    <string name="filter_duplicated">Doubles seuls</string>
+    <string name="restore_dialog_title">Restaurer les collections</string>
+    <string name="preferences_title">Préférences</string>
+    <string name="advanced_preferences">Sauvegarde</string>
+    <string name="title_auto_backup_preference">Sauvegarde automatique</string>
+    <string name="summary_auto_backup_preference">Sauvegarde une collection dès qu\'une modification
 		a été effectuée</string>
+    <string name="menu_backup">Sauvegarder</string>
+    <string name="backup_nothing_to_do">Rien à sauvegarder</string>
+    <string name="about_text">PiwiSoft (c) 2011-2012</string>
 </resources>
