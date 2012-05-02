@@ -13,8 +13,10 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -29,7 +31,7 @@ import android.widget.ListView;
 public class Main extends ListActivity
 {
     public final static String LOG_TAG = "stickeroid";
-    
+
     private final static int EDIT_ID = Menu.FIRST;
 
     private final static int DELETE_ID = Menu.FIRST + 1;
@@ -50,8 +52,12 @@ public class Main extends ListActivity
         updateList();
 
         registerForContextMenu(getListView());
-        
-        backupCollections();
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if(prefs.getBoolean("preference_auto_backup", false))
+        {
+            backupCollections(false);
+        }
     }
 
     @Override
@@ -81,6 +87,9 @@ public class Main extends ListActivity
             startActivityForResult(i, ACTIVITY_CREATE);
             return true;
         }
+        case R.id.main_menu_backup:
+            backupCollections(true);
+            return true;
         case R.id.main_menu_restore:
             listRestorableCollections();
             return true;
@@ -94,7 +103,7 @@ public class Main extends ListActivity
         {
             final Dialog dialog = new Dialog(this);
             dialog.setContentView(R.layout.about_dialog);
-            dialog.setTitle("Stickeroid v1.1");
+            dialog.setTitle("Stickeroid v" + Utils.getVersionName(this));
             dialog.show();
             return true;
         }
@@ -243,7 +252,7 @@ public class Main extends ListActivity
         }
     }
 
-    private void backupCollections()
+    private void backupCollections(boolean manually)
     {
         String state = Environment.getExternalStorageState();
         if(Environment.MEDIA_MOUNTED.equals(state))
@@ -258,34 +267,47 @@ public class Main extends ListActivity
                 }
             }
 
+            int nbFilesToBackup = 0;
+            
             File srcDir = getFilesDir();
             if(srcDir != null && srcDir.exists())
             {
                 File[] files = srcDir.listFiles();
                 if(files != null)
                 {
-                    int nbFilesToBackup = 0;
                     int nbBackups = 0;
 
-                    for(File f : files)
+                    for(File srcFile : files)
                     {
-                        if(f.isFile() && Collection.match(f.getName()))
+                        if(srcFile.isFile() && Collection.match(srcFile.getName()))
                         {
-                            nbFilesToBackup++;
+                            File dstFile = new File(destDir, srcFile.getName());
 
-                            File file = new File(destDir, f.getName());
-
-                            if(Utils.copyFile(f, file))
+                            if(!Utils.equalsFilesBinary(srcFile, dstFile))
                             {
-                                nbBackups++;
+                                nbFilesToBackup++;
+
+                                if(Utils.copyFile(srcFile, dstFile))
+                                {
+                                    nbBackups++;
+                                }
                             }
                         }
                     }
 
-                    int textId = nbBackups == nbFilesToBackup ? R.string.backup_completed
-                            : R.string.backup_error;
-                    Utils.showToaster(this, textId);
+                    if(nbFilesToBackup > 0)
+                    {
+                        int textId = nbBackups == nbFilesToBackup ? R.string.backup_completed
+                                : R.string.backup_error;
+
+                        Utils.showToaster(this, textId);
+                    }
                 }
+            }
+            
+            if(nbFilesToBackup == 0 && manually)
+            {
+                Utils.showToaster(this, R.string.backup_nothing_to_do);
             }
         }
         else
@@ -393,9 +415,9 @@ public class Main extends ListActivity
                     }
                 }
             }
-            
+
             updateList();
-            
+
             if(nbRestored == nbToRestore)
             {
                 Utils.showToaster(this, R.string.restore_completed);

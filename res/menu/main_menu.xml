@@ -1,10 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/main_menu_add_item" android:title="@string/menu_new_collection"
-		android:icon="@android:drawable/ic_menu_add" />
-	<item android:id="@+id/main_menu_restore" android:title="@string/menu_restore" />
-	<item android:id="@+id/main_menu_preferences" android:title="@string/menu_preferences"
-		android:icon="@android:drawable/ic_menu_preferences" />
-	<item android:id="@+id/main_menu_about" android:title="@string/menu_about"
-		android:icon="@android:drawable/ic_menu_info_details" />
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/main_menu_add_item"
+        android:icon="@android:drawable/ic_menu_add"
+        android:title="@string/menu_new_collection"/>
+    <item
+        android:id="@+id/main_menu_backup"
+        android:icon="@drawable/ic_menu_backup"
+        android:title="@string/menu_backup"/>
+    <item
+        android:id="@+id/main_menu_restore"
+        android:icon="@drawable/ic_menu_restore"
+        android:title="@string/menu_restore"/>
+    <item
+        android:id="@+id/main_menu_preferences"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:title="@string/menu_preferences"/>
+    <item
+        android:id="@+id/main_menu_about"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:title="@string/menu_about"/>
+
 </menu>
