@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="@string/advanced_preferences" >
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="preference_auto_backup"
+            android:summary="@string/summary_auto_backup_preference"
+            android:title="@string/title_auto_backup_preference" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
